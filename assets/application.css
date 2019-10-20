@@ -1,0 +1,12 @@
+.fade.in {
+  opacity: 1;
+}
+.message-field {
+  height: calc(100% - 56px);
+}
+.text-field {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  overflow: auto;
+}
