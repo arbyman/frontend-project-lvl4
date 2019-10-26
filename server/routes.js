@@ -81,6 +81,7 @@ export default (router, io) => {
       ctx.body = resources;
     })
     .post('/channels/:channelId/messages', (ctx) => {
+      console.log('lol');
       const { data: { attributes } } = ctx.request.body;
       const message = {
         ...attributes,
