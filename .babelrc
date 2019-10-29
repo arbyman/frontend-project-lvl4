@@ -1,11 +1,14 @@
 {
   "presets": [
-    ["@babel/env", {
-      "targets": {
-        "browsers": ["last 2 Chrome versions"]
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "node": "current"
+        }
       }
-    }],
-    "@babel/react"
+    ],
+    "@babel/preset-react"
   ],
   "plugins": [
     ["@babel/plugin-proposal-decorators", { "legacy": true }],

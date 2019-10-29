@@ -1,1 +1,1 @@
-web: node dist/bin/slack.js
+web: npm run server

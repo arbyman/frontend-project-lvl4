@@ -19,6 +19,7 @@ export const sendMessage = (id, data) => async (dispatch) => {
     throw e;
   }
 };
+
 export const getMessagesRequest = createAction('MESSAGES_GET_REQUEST');
 export const getMessagesSuccess = createAction('MESSAGES_GET_SUCCESS');
 export const getMessagesFailure = createAction('MESSAGES_GET_FAILURE');

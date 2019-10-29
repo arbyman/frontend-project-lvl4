@@ -2,12 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
 import * as actions from '../actions';
+import Message from './Message';
 
 const mapStateToProps = (state) => {
   const { messages: { byId, allIds }, channels: { currentChannelId } } = state;
   const messages = allIds
     .map(id => byId[id])
-    .map(({ attributes }) => `${attributes.author}: ${attributes.message}`);
+    .filter(({ channelId }) => channelId === currentChannelId);
   return { messages, currentChannelId };
 };
 
@@ -24,8 +25,7 @@ class MessagesField extends React.Component {
   }
 
   componentDidMount() {
-    const { getMessages, updateMessages, currentChannelId } = this.props;
-    getMessages(currentChannelId);
+    const { updateMessages } = this.props;
     const socket = io();
     socket.on('newMessage', data => updateMessages({ data }));
   }
@@ -39,7 +39,16 @@ class MessagesField extends React.Component {
     return (
       <div className="row message-field">
         <div className="col">
-          <textarea ref={this.textField} className="text-field form-control h-100" disabled value={messages.join('\n')} />
+          <div ref={this.textField} className="text-field form-control">
+            <pre>
+              {messages
+                .map(({
+                  author,
+                  message,
+                  id,
+                }) => <Message author={author} key={id} text={message} />)}
+            </pre>
+          </div>
         </div>
       </div>
     );

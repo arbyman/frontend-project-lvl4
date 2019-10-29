@@ -11,6 +11,7 @@
   },
   "scripts": {
     "test": "jest",
+    "server": "babel-node server/bin/slack.js",
     "build-server": "babel server --out-dir dist --source-maps inline",
     "build-app": "npx webpack -p --env production",
     "build": "npm run build-app && npm run build-server",
@@ -20,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/arbyman/frontend-project-lvl4"
   },
-  "author": "Sergey Vanin",
+  "author": "Sergei Vanin",
   "license": "ISC",
   "dependencies": {
     "@babel/cli": "^7.5.5",

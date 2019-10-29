@@ -38,7 +38,7 @@ const messages = handleActions({
     };
   },
   [actions.updateMessages](state, { payload: { data } }) {
-    const { data: attributes } = data;
+    const { data: { attributes } } = data;
     const { byId, allIds } = state;
     return {
       byId: { ...byId, [attributes.id]: attributes },

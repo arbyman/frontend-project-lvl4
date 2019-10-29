@@ -8,9 +8,6 @@ import faker from 'faker';
 import cookies from 'js-cookie';
 import reducers from './reducers';
 import Chat from './components/Chat';
-import Channels from './components/Channels';
-import MessagesField from './components/MessagesField';
-import MessagesInput from './components/MessagesInput';
 import UserContext from './UserContext';
 
 const getUser = () => {
@@ -22,21 +19,24 @@ const getUser = () => {
   return user;
 };
 
-export default ({ channels, currentChannelId }) => {
+export default ({ channels, currentChannelId, messages }) => {
   const defaultState = {
     channels: {
       byId: _.keyBy(channels, 'id'),
       allIds: channels.map(({ id }) => id),
       currentChannelId,
     },
+    messages: {
+      byId: _.keyBy(messages, 'id'),
+      allIds: messages.map(({ id }) => id),
+    },
   };
+
   const store = createStore(
     reducers,
     defaultState,
     compose(
       applyMiddleware(thunk),
-      // eslint-disable-next-line no-underscore-dangle
-      window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
     ),
   );
   const container = document.getElementById('chat');
@@ -44,13 +44,7 @@ export default ({ channels, currentChannelId }) => {
   render(
     <Provider store={store}>
       <UserContext.Provider value={user}>
-        <Chat>
-          <Channels />
-          <div className="col-9">
-            <MessagesField />
-            <MessagesInput />
-          </div>
-        </Chat>
+        <Chat />
       </UserContext.Provider>
     </Provider>,
     container,

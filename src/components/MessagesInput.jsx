@@ -1,5 +1,5 @@
 import React from 'react';
-import { Field, reduxForm } from 'redux-form';
+import { Field, reduxForm, SubmissionError } from 'redux-form';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import UserContext from '../UserContext';
@@ -17,18 +17,24 @@ const actionCreators = {
 class MessagesInput extends React.Component {
   static contextType = UserContext;
 
-  sendMessage = ({ message }) => {
+  sendMessage = async ({ message }) => {
     const { sendMessage, currentChannelId, reset } = this.props;
     const data = {
       author: this.context,
       message,
     };
-    sendMessage(currentChannelId, data);
+    await sendMessage(currentChannelId, data);
     reset();
   }
 
   render() {
-    const { handleSubmit, pristine, submitting } = this.props;
+    const {
+      handleSubmit,
+      pristine,
+      submitting,
+      sendMessageState,
+      error,
+    } = this.props;
     return (
       <div className="row h-25">
         <div className="col message-input">
@@ -42,11 +48,12 @@ class MessagesInput extends React.Component {
                   id="button-addon2"
                   disabled={pristine || submitting}
                 >
-                    Send
+                  {sendMessageState === 'requested' ? 'sending' : 'Send'}
                 </button>
               </div>
             </div>
           </form>
+          {error && new SubmissionError(error)}
         </div>
       </div>
     );
