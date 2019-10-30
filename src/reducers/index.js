@@ -6,14 +6,25 @@ import _ from 'lodash';
 import * as actions from '../actions';
 
 const channels = handleActions({
-  [actions.addChannel](state, { payload: { channel } }) {
-    const { byId, allIds } = state;
+  [actions.addChannelSuccess](state, { payload: { data } }) {
+    const { data: { attributes } } = data;
+    const { byId, allIds, currentChannelId } = state;
     return {
-      byId: { ...byId, [channel.id]: channel },
-      allIds: [channel.id, ...allIds],
+      byId: { ...byId, [attributes.id]: attributes },
+      allIds: [...allIds, attributes.id],
+      currentChannelId,
     };
   },
+  [actions.changeChannel](state, { payload: { id } }) {
+    return { ...state, currentChannelId: id };
+  },
 }, { byId: {}, allIds: [], currentChannelId: 1 });
+
+const modalAddChannelUIState = handleActions({
+  [actions.inverseShowModalAddChannel](state) {
+    return state === 'close' ? 'open' : 'close';
+  },
+}, 'close');
 
 const sendMessageState = handleActions({
   [actions.sendMessageRequest]() {
@@ -51,5 +62,6 @@ export default combineReducers({
   channels,
   messages,
   sendMessageState,
+  modalAddChannelUIState,
   form: formReducer,
 });

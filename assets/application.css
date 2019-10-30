@@ -2,7 +2,7 @@
   opacity: 1;
 }
 .message-field {
-  height: calc(100% - 56px);
+  height: 100%;
 }
 .text-field {
   width: 100%;
@@ -10,4 +10,7 @@
   max-height: 600px;
   resize: none;
   overflow: auto;
+}
+.add-channel {
+  margin-top: 60px;
 }

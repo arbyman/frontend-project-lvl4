@@ -2,13 +2,17 @@ import { createAction } from 'redux-actions';
 import axios from 'axios';
 import routes from '../routes';
 
-export const addChannel = createAction('CHANNEL_ADD');
+export const inverseShowModalAddChannel = createAction('MODAL_ADD_CHANNEL_UI_STATE');
+
+export const addChannelSuccess = createAction('CHANNEL_ADD_SUCCESS');
+
+export const changeChannel = createAction('CHANNEL_CHANGE');
 
 export const sendMessageRequest = createAction('MESSAGE_SEND_REQUEST');
 export const sendMessageSuccess = createAction('MESSAGE_SEND_SUCCESS');
 export const sendMessageFailure = createAction('MESSAGE_SEND_FAILURE');
 
-export const sendMessage = (id, data) => async (dispatch) => {
+export const sendMessage = ({ id, data }) => async (dispatch) => {
   dispatch(sendMessageRequest());
   try {
     const path = routes.channelMessagesPath(id);
@@ -16,6 +20,16 @@ export const sendMessage = (id, data) => async (dispatch) => {
     dispatch(sendMessageSuccess());
   } catch (e) {
     dispatch(sendMessageFailure());
+    throw e;
+  }
+};
+
+export const addChannel = ({ channel }) => async (dispatch) => {
+  try {
+    const path = routes.channelsPath();
+    const { data } = await axios.post(path, { data: { attributes: { name: channel } } });
+    dispatch(addChannelSuccess({ data }));
+  } catch (e) {
     throw e;
   }
 };

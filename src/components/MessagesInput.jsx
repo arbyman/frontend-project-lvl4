@@ -23,7 +23,7 @@ class MessagesInput extends React.Component {
       author: this.context,
       message,
     };
-    await sendMessage(currentChannelId, data);
+    await sendMessage({ id: currentChannelId, data });
     reset();
   }
 
