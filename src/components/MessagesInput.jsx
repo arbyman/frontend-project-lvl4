@@ -48,7 +48,7 @@ class MessagesInput extends React.Component {
                   id="button-addon2"
                   disabled={pristine || submitting}
                 >
-                  {sendMessageState === 'requested' ? 'sending' : 'Send'}
+                  {sendMessageState === 'requested' ? 'sending...' : 'Send'}
                 </button>
               </div>
             </div>

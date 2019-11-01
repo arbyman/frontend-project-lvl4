@@ -3,6 +3,8 @@ import axios from 'axios';
 import routes from '../routes';
 
 export const inverseShowModalAddChannel = createAction('MODAL_ADD_CHANNEL_UI_STATE');
+export const inverseShowModalRemoveChannel = createAction('MODAL_REMOVE_CHANNEL_UI_STATE');
+export const inverseShowModalRenameChannel = createAction('MODAL_RENAME_CHANNEL_UI_STATE');
 
 export const addChannelSuccess = createAction('CHANNEL_ADD_SUCCESS');
 
@@ -50,5 +52,25 @@ export const getMessages = id => async (dispatch) => {
   }
 };
 
+export const removeChannel = id => async () => {
+  try {
+    const path = routes.channelPath(id);
+    await axios.delete(path);
+  } catch (e) {
+    throw e;
+  }
+};
+
+export const renameChannel = (id, name) => async () => {
+  console.log(id);
+  try {
+    const path = routes.channelPath(id);
+    await axios.patch(path, { data: { attributes: { name } } });
+  } catch (e) {
+    throw e;
+  }
+};
+export const removeChannelSuccess = createAction('CHANNEL_REMOVE_SUCCESS');
+export const renameChannelSuccess = createAction('CHANNEL_RENAME_SUCCESS');
 export const updateMessages = createAction('MESSAGES_UPDATE');
 export const updateMessagesSuccess = createAction('MESSAGES_UPDATE_SUCCESS');
