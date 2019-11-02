@@ -5,14 +5,16 @@ import { reducer as formReducer } from 'redux-form';
 import _ from 'lodash';
 import * as actions from '../actions';
 
+const defaultChannelId = 1;
+
 const channels = handleActions({
-  [actions.addChannelSuccess](state, { payload: { data } }) {
-    const { data: { attributes } } = data;
+  [actions.addChannelSuccess](state, { payload: { channel } }) {
+    const { id } = channel;
     const { byId, allIds } = state;
     return {
-      byId: { ...byId, [attributes.id]: attributes },
-      allIds: [...allIds, attributes.id],
-      currentChannelId: attributes.id,
+      byId: { ...byId, [id]: channel },
+      allIds: [...allIds, id],
+      currentChannelId: id,
     };
   },
   [actions.changeChannel](state, { payload: { id } }) {
@@ -23,20 +25,19 @@ const channels = handleActions({
     return {
       byId: _.omit(byId, id),
       allIds: _.without(allIds, id),
-      currentChannelId: currentChannelId === id ? 1 : currentChannelId,
+      currentChannelId: currentChannelId === id ? defaultChannelId : currentChannelId,
     };
   },
   [actions.renameChannelSuccess](state, { payload: { id, name } }) {
-    const { byId, allIds, currentChannelId } = state;
+    const { byId } = state;
     const channel = byId[id];
     const renamedChannel = { ...channel, name };
     return {
+      ...state,
       byId: { ...byId, [id]: renamedChannel },
-      allIds,
-      currentChannelId,
     };
   },
-}, { byId: {}, allIds: [], currentChannelId: 1 });
+}, { byId: {}, allIds: [], currentChannelId: defaultChannelId });
 
 const modalAddChannelUIState = handleActions({
   [actions.inverseShowModalAddChannel](state) {

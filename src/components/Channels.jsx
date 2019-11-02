@@ -1,45 +1,47 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import {
-  ListGroup, Button, Modal, Form, ButtonToolbar, Dropdown, ButtonGroup,
-} from 'react-bootstrap';
-import { Field, reduxForm } from 'redux-form';
+import { ListGroup, Button, Modal } from 'react-bootstrap';
 import io from 'socket.io-client';
 import * as actions from '../actions';
+import Channel from './Channel';
+import NewChannelForm from './NewChannelForm';
+import NewChannelNameForm from './NewChannelNameForm';
 
 const mapStateToProps = (state) => {
   const {
     channels: { byId, allIds, currentChannelId },
     modalAddChannelUIState,
-    modalRemoveChannelUIState,
     modalRenameChannelUIState,
+    modalRemoveChannelUIState,
   } = state;
+  const currentChannelName = byId[currentChannelId].name;
   const channels = allIds.map(id => byId[id]);
   return {
     channels,
     currentChannelId,
+    currentChannelName,
     modalAddChannelUIState,
-    modalRemoveChannelUIState,
     modalRenameChannelUIState,
+    modalRemoveChannelUIState,
   };
 };
 
 const actionsCreators = {
   inverseShowModalAddChannel: actions.inverseShowModalAddChannel,
-  inverseShowModalRemoveChannel: actions.inverseShowModalRemoveChannel,
   inverseShowModalRenameChannel: actions.inverseShowModalRenameChannel,
-  changeChannel: actions.changeChannel,
+  inverseShowModalRemoveChannel: actions.inverseShowModalRemoveChannel,
   addChannel: actions.addChannel,
-  removeChannelSuccess: actions.removeChannelSuccess,
-  removeChannel: actions.removeChannel,
+  addChannelSuccess: actions.addChannelSuccess,
   renameChannel: actions.renameChannel,
   renameChannelSuccess: actions.renameChannelSuccess,
+  removeChannel: actions.removeChannel,
+  removeChannelSuccess: actions.removeChannelSuccess,
 };
 
 @connect(mapStateToProps, actionsCreators)
 class Channels extends React.Component {
   componentDidMount() {
-    const { removeChannelSuccess, renameChannelSuccess } = this.props;
+    const { addChannelSuccess, removeChannelSuccess, renameChannelSuccess } = this.props;
     const socket = io();
     socket.on('removeChannel', ({ data: { id } }) => {
       removeChannelSuccess({ id });
@@ -48,165 +50,106 @@ class Channels extends React.Component {
       const { data: { attributes: { id, name } } } = data;
       renameChannelSuccess({ id, name });
     });
-  }
-
-  handleChangeChannel = id => () => {
-    const { changeChannel } = this.props;
-    changeChannel({ id });
+    socket.on('newChannel', (data) => {
+      const { data: { attributes: channel } } = data;
+      addChannelSuccess({ channel });
+    });
   }
 
   handleAddChannel = async ({ channel }) => {
-    const { addChannel, inverseShowModalAddChannel, reset } = this.props;
+    const { addChannel, inverseShowModalAddChannel } = this.props;
     await addChannel({ channel });
-    reset();
     inverseShowModalAddChannel();
-  }
-
-  handleRemoveChannel = id => async () => {
-    const { removeChannel, inverseShowModalRemoveChannel, reset } = this.props;
-    await removeChannel(id);
-    inverseShowModalRemoveChannel();
-    reset();
   }
 
   handleRenameChannel = id => async ({ name }) => {
-    const { renameChannel, inverseShowModalRenameChannel, reset } = this.props;
+    const { renameChannel, inverseShowModalRenameChannel } = this.props;
     await renameChannel(id, name);
     inverseShowModalRenameChannel();
-    reset();
   }
 
-  handleShowModalAddChannel = () => {
-    const { inverseShowModalAddChannel, reset } = this.props;
-    reset();
-    inverseShowModalAddChannel();
-  }
-
-  handleShowModalRemoveChannel = () => {
-    const { inverseShowModalRemoveChannel, reset } = this.props;
+  handleRemoveChannel = id => async () => {
+    const { removeChannel, inverseShowModalRemoveChannel } = this.props;
+    await removeChannel(id);
     inverseShowModalRemoveChannel();
-    reset();
-  }
-
-  handleShowModalRenameChannel = () => {
-    const { inverseShowModalRenameChannel, reset } = this.props;
-    inverseShowModalRenameChannel();
-    reset();
-  }
-
-  renderChannels(channels) {
-    const {
-      currentChannelId,
-      modalRemoveChannelUIState,
-      modalRenameChannelUIState,
-      handleSubmit,
-      pristine,
-      submitting,
-    } = this.props;
-    return channels.map(({ name, id, removable }) => (
-      <React.Fragment key={id}>
-        <Dropdown as={ButtonGroup}>
-          <ListGroup.Item
-            action
-            active={currentChannelId === id}
-            onClick={this.handleChangeChannel(id)}
-          >
-            {name}
-          </ListGroup.Item>
-          <Dropdown.Toggle split variant="secondary" id="dropdown-split-basic" />
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={this.handleShowModalRenameChannel}>Rename</Dropdown.Item>
-            {removable && (
-            <Dropdown.Item onClick={this.handleShowModalRemoveChannel}>
-              Delete
-            </Dropdown.Item>
-            )}
-          </Dropdown.Menu>
-        </Dropdown>
-        <Modal
-          show={modalRemoveChannelUIState === 'open'}
-          onHide={this.handleShowModalRemoveChannel}
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-        >
-          <Modal.Header>
-            {<Modal.Title>{name}</Modal.Title>}
-          </Modal.Header>
-          <Modal.Body>
-            <p>This channel will be deleted. Are you sure?</p>
-            <Form onSubmit={handleSubmit(this.handleRemoveChannel(id))}>
-              <ButtonToolbar>
-                <Button variant="danger" type="submit">Delete channel</Button>
-                <Button variant="secondary" onClick={this.handleShowModalRemoveChannel}>Cancel</Button>
-              </ButtonToolbar>
-            </Form>
-          </Modal.Body>
-        </Modal>
-        <Modal
-          show={modalRenameChannelUIState === 'open'}
-          onHide={this.handleShowModalRenameChannel}
-          size="lg"
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-        >
-          <Modal.Body>
-            <Form onSubmit={handleSubmit(this.handleRenameChannel(id))}>
-              <Form.Group>
-                <Form.Label>Write a new channel name.</Form.Label>
-                <Field name="name" component="input" type="text" className="form-control" placeholder="new channel name" aria-label="new channel name" aria-describedby="button-addon2" />
-              </Form.Group>
-              <ButtonToolbar>
-                <Button variant="success" type="submit" disabled={pristine || submitting}>Rename channel</Button>
-                <Button variant="danger" onClick={this.handleShowModalRenameChannel}>Cancel</Button>
-              </ButtonToolbar>
-            </Form>
-          </Modal.Body>
-        </Modal>
-      </React.Fragment>
-    ));
   }
 
   render() {
     const {
       channels,
+      currentChannelId,
+      currentChannelName,
+      inverseShowModalAddChannel,
+      inverseShowModalRenameChannel,
+      inverseShowModalRemoveChannel,
+      modalRenameChannelUIState,
+      modalRemoveChannelUIState,
       modalAddChannelUIState,
-      handleSubmit,
-      pristine,
-      submitting,
     } = this.props;
     return (
       <div className="col-3">
         <ListGroup as="ul" variant="outline-danger">
-          {this.renderChannels(channels)}
+          {channels
+            .map(props => (
+              <Channel {...props} key={props.id} />
+            ))}
         </ListGroup>
-        <Button variant="outline-primary" block className="text-center add-channel" onClick={this.handleShowModalAddChannel}>
+        <Button variant="outline-primary" block className="text-center add-channel" onClick={inverseShowModalAddChannel}>
           + add channel
         </Button>
         <Modal
           show={modalAddChannelUIState === 'open'}
-          onHide={this.handleShowModalAddChannel}
-          size="lg"
+          onHide={inverseShowModalAddChannel}
           aria-labelledby="contained-modal-title-vcenter"
           centered
         >
+          <Modal.Header closeButton>
+            <Modal.Title>Add new channel.</Modal.Title>
+          </Modal.Header>
           <Modal.Body>
-            <Form onSubmit={handleSubmit(this.handleAddChannel)}>
-              <Form.Group>
-                <Form.Label>Add new channel</Form.Label>
-                <Field name="channel" component="input" type="text" className="form-control" placeholder="new channel" aria-label="new channel" aria-describedby="button-addon2" />
-              </Form.Group>
-              <ButtonToolbar>
-                <Button variant="success" type="submit" disabled={pristine || submitting}>Add channel</Button>
-                <Button variant="danger" onClick={this.handleShowModalAddChannel}>Cancel</Button>
-              </ButtonToolbar>
-            </Form>
+            <NewChannelForm
+              onSubmit={this.handleAddChannel}
+              onClick={inverseShowModalAddChannel}
+            />
           </Modal.Body>
+        </Modal>
+        <Modal
+          show={modalRenameChannelUIState === 'open'}
+          onHide={inverseShowModalRenameChannel}
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Write a new channel name.</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <NewChannelNameForm
+              channelName={currentChannelName}
+              onSubmit={this.handleRenameChannel(currentChannelId)}
+              onClick={inverseShowModalRenameChannel}
+            />
+          </Modal.Body>
+        </Modal>
+        <Modal
+          show={modalRemoveChannelUIState === 'open'}
+          onHide={inverseShowModalRemoveChannel}
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+        >
+          <Modal.Header closeButton>
+            {<Modal.Title>{currentChannelName}</Modal.Title>}
+          </Modal.Header>
+          <Modal.Body>
+            <p>This channel will be deleted. Are you sure?</p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="danger" onClick={this.handleRemoveChannel(currentChannelId)}>Delete channel</Button>
+            <Button variant="secondary" onClick={inverseShowModalRemoveChannel}>Cancel</Button>
+          </Modal.Footer>
         </Modal>
       </div>
     );
   }
 }
 
-export default reduxForm({
-  form: 'newChannel',
-})(Channels);
+export default Channels;

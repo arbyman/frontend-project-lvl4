@@ -5,7 +5,6 @@ import routes from '../routes';
 export const inverseShowModalAddChannel = createAction('MODAL_ADD_CHANNEL_UI_STATE');
 export const inverseShowModalRemoveChannel = createAction('MODAL_REMOVE_CHANNEL_UI_STATE');
 export const inverseShowModalRenameChannel = createAction('MODAL_RENAME_CHANNEL_UI_STATE');
-
 export const addChannelSuccess = createAction('CHANNEL_ADD_SUCCESS');
 
 export const changeChannel = createAction('CHANNEL_CHANGE');
@@ -26,11 +25,10 @@ export const sendMessage = ({ id, data }) => async (dispatch) => {
   }
 };
 
-export const addChannel = ({ channel }) => async (dispatch) => {
+export const addChannel = ({ channel }) => async () => {
   try {
     const path = routes.channelsPath();
-    const { data } = await axios.post(path, { data: { attributes: { name: channel } } });
-    dispatch(addChannelSuccess({ data }));
+    await axios.post(path, { data: { attributes: { name: channel } } });
   } catch (e) {
     throw e;
   }
@@ -62,7 +60,6 @@ export const removeChannel = id => async () => {
 };
 
 export const renameChannel = (id, name) => async () => {
-  console.log(id);
   try {
     const path = routes.channelPath(id);
     await axios.patch(path, { data: { attributes: { name } } });

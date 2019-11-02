@@ -14,7 +14,6 @@ const mapStateToProps = (state) => {
 
 const actionCreators = {
   updateMessages: actions.updateMessages,
-  getMessages: actions.getMessages,
 };
 
 @connect(mapStateToProps, actionCreators)
