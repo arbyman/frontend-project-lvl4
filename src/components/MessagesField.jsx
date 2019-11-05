@@ -26,7 +26,14 @@ class MessagesField extends React.Component {
   componentDidMount() {
     const { updateMessages } = this.props;
     const socket = io();
-    socket.on('newMessage', data => updateMessages({ data }));
+    socket.on('newMessage', (data) => {
+      const { currentChannelId } = this.props;
+      const { data: { attributes: message } } = data;
+      const { channelId } = message;
+      const unread = currentChannelId !== channelId;
+      const newMessage = { ...message, unread };
+      updateMessages({ message: newMessage });
+    });
   }
 
   componentDidUpdate() {
@@ -39,14 +46,7 @@ class MessagesField extends React.Component {
       <div className="row message-field">
         <div className="col">
           <div ref={this.textField} className="text-field form-control">
-            <pre>
-              {messages
-                .map(({
-                  author,
-                  message,
-                  id,
-                }) => <Message author={author} key={id} text={message} />)}
-            </pre>
+            {messages.map(props => <Message {...props} key={props.id} />)}
           </div>
         </div>
       </div>

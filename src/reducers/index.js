@@ -1,4 +1,3 @@
-// import _ from 'lodash';
 import { combineReducers } from 'redux';
 import { handleActions } from 'redux-actions';
 import { reducer as formReducer } from 'redux-form';
@@ -8,7 +7,7 @@ import * as actions from '../actions';
 const defaultChannelId = 1;
 
 const channels = handleActions({
-  [actions.addChannelSuccess](state, { payload: { channel } }) {
+  [actions.updateChannelNew](state, { payload: { channel } }) {
     const { id } = channel;
     const { byId, allIds } = state;
     return {
@@ -18,17 +17,20 @@ const channels = handleActions({
     };
   },
   [actions.changeChannel](state, { payload: { id } }) {
-    return { ...state, currentChannelId: id };
+    const { byId } = state;
+    const { [id]: channel } = byId;
+    const updatedChannel = { ...channel, unreadMessagesCount: 0 };
+    return { ...state, byId: { ...byId, [id]: updatedChannel }, currentChannelId: id };
   },
-  [actions.removeChannelSuccess](state, { payload: { id } }) {
-    const { byId, allIds, currentChannelId } = state;
+  [actions.updateChannelRemoved](state, { payload: { id } }) {
+    const { byId, allIds } = state;
     return {
       byId: _.omit(byId, id),
       allIds: _.without(allIds, id),
-      currentChannelId: currentChannelId === id ? defaultChannelId : currentChannelId,
+      currentChannelId: defaultChannelId,
     };
   },
-  [actions.renameChannelSuccess](state, { payload: { id, name } }) {
+  [actions.updateChannelName](state, { payload: { id, name } }) {
     const { byId } = state;
     const channel = byId[id];
     const renamedChannel = { ...channel, name };
@@ -37,7 +39,39 @@ const channels = handleActions({
       byId: { ...byId, [id]: renamedChannel },
     };
   },
+  [actions.updateMessages](state, { payload: { message } }) {
+    const { byId } = state;
+    const { channelId, unread } = message;
+    const currentChannel = byId[channelId];
+    const { unreadMessagesCount } = currentChannel;
+    const updatedChannel = {
+      ...currentChannel,
+      unreadMessagesCount: unread ? unreadMessagesCount + 1 : unreadMessagesCount,
+    };
+    return {
+      ...state,
+      byId: { ...byId, [channelId]: updatedChannel },
+    };
+  },
 }, { byId: {}, allIds: [], currentChannelId: defaultChannelId });
+
+const messages = handleActions({
+  [actions.updateMessages](state, { payload: { message } }) {
+    const { id } = message;
+    const { byId, allIds } = state;
+    return {
+      byId: { ...byId, [id]: message },
+      allIds: [...allIds, id],
+    };
+  },
+  [actions.updateChannelRemoved](state, { payload: { id } }) {
+    const { byId, allIds } = state;
+    return {
+      byId: _.omitBy(byId, ({ channelId }) => channelId === id),
+      allIds: allIds.filter(currentId => byId[currentId].channelId !== id),
+    };
+  },
+}, { byId: {}, allIds: [] });
 
 const modalAddChannelUIState = handleActions({
   [actions.inverseShowModalAddChannel](state) {
@@ -69,37 +103,49 @@ const sendMessageState = handleActions({
   },
 }, 'none');
 
-const messages = handleActions({
-  [actions.updateMessagesSuccess](state) {
-    return state;
+const addChannelState = handleActions({
+  [actions.addChannelRequest]() {
+    return 'requested';
   },
-  [actions.getMessagesSuccess](state, { payload: { data } }) {
-    return {
-      byId: _.keyBy(data, 'id'),
-      allIds: data.map(({ id }) => id),
-    };
+  [actions.addChannelSuccess]() {
+    return 'succeed';
   },
-  [actions.updateMessages](state, { payload: { data } }) {
-    const { data: { attributes } } = data;
-    const { byId, allIds } = state;
-    return {
-      byId: { ...byId, [attributes.id]: attributes },
-      allIds: [...allIds, attributes.id],
-    };
+  [actions.addChannelFailure]() {
+    return 'failed';
   },
-  [actions.removeChannelSuccess](state, { payload: { id } }) {
-    const { byId, allIds } = state;
-    return {
-      byId: _.omitBy(byId, ({ channelId }) => channelId === id),
-      allIds: allIds.filter(currentId => byId[currentId].channelId !== id),
-    };
+}, 'none');
+
+const removeChannelState = handleActions({
+  [actions.removeChannelRequest]() {
+    return 'requested';
   },
-}, { byId: {}, allIds: [] });
+  [actions.removeChannelSuccess]() {
+    return 'succeed';
+  },
+  [actions.removeChannelFailure]() {
+    return 'failed';
+  },
+}, 'none');
+
+const renameChannelState = handleActions({
+  [actions.renameChannelRequest]() {
+    return 'requested';
+  },
+  [actions.renameChannelSuccess]() {
+    return 'succeed';
+  },
+  [actions.renameChannelFailure]() {
+    return 'failed';
+  },
+}, 'none');
 
 export default combineReducers({
   channels,
   messages,
   sendMessageState,
+  addChannelState,
+  removeChannelState,
+  renameChannelState,
   modalAddChannelUIState,
   modalRemoveChannelUIState,
   modalRenameChannelUIState,

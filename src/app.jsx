@@ -43,6 +43,7 @@ export default ({ channels, currentChannelId, messages }) => {
   );
   const container = document.getElementById('chat');
   const user = getUser();
+
   render(
     <Provider store={store}>
       <UserContext.Provider value={user}>

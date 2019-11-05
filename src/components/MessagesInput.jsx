@@ -17,6 +17,15 @@ const actionCreators = {
 class MessagesInput extends React.Component {
   static contextType = UserContext;
 
+  constructor(props) {
+    super(props);
+    this.inputMessage = React.createRef();
+  }
+
+  async componentDidMount() {
+    this.inputMessage.current.getRenderedComponent().focus();
+  }
+
   sendMessage = async ({ message }) => {
     const { sendMessage, currentChannelId, reset } = this.props;
     const data = {
@@ -40,7 +49,17 @@ class MessagesInput extends React.Component {
         <div className="col message-input">
           <form onSubmit={handleSubmit(this.sendMessage)}>
             <div className="input-group mb-3">
-              <Field name="message" component="input" type="text" className="form-control" placeholder="enter your message" aria-label="enter your message" aria-describedby="button-addon2" />
+              <Field
+                name="message"
+                component="input"
+                ref={this.inputMessage}
+                forwardRef
+                type="text"
+                className="form-control"
+                placeholder="enter your message"
+                aria-label="enter your message"
+                aria-describedby="button-addon2"
+              />
               <div className="input-group-append">
                 <button
                   className="btn btn-outline-secondary"

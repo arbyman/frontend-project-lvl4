@@ -1,6 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ListGroup, Button, Modal } from 'react-bootstrap';
+import {
+  ListGroup, Button, Modal, Spinner,
+} from 'react-bootstrap';
 import io from 'socket.io-client';
 import * as actions from '../actions';
 import Channel from './Channel';
@@ -13,6 +15,9 @@ const mapStateToProps = (state) => {
     modalAddChannelUIState,
     modalRenameChannelUIState,
     modalRemoveChannelUIState,
+    addChannelState,
+    removeChannelState,
+    renameChannelState,
   } = state;
   const currentChannelName = byId[currentChannelId].name;
   const channels = allIds.map(id => byId[id]);
@@ -23,6 +28,9 @@ const mapStateToProps = (state) => {
     modalAddChannelUIState,
     modalRenameChannelUIState,
     modalRemoveChannelUIState,
+    addChannelState,
+    removeChannelState,
+    renameChannelState,
   };
 };
 
@@ -31,28 +39,28 @@ const actionsCreators = {
   inverseShowModalRenameChannel: actions.inverseShowModalRenameChannel,
   inverseShowModalRemoveChannel: actions.inverseShowModalRemoveChannel,
   addChannel: actions.addChannel,
-  addChannelSuccess: actions.addChannelSuccess,
+  updateChannelNew: actions.updateChannelNew,
   renameChannel: actions.renameChannel,
-  renameChannelSuccess: actions.renameChannelSuccess,
+  updateChannelName: actions.updateChannelName,
   removeChannel: actions.removeChannel,
-  removeChannelSuccess: actions.removeChannelSuccess,
+  updateChannelRemoved: actions.updateChannelRemoved,
 };
 
 @connect(mapStateToProps, actionsCreators)
 class Channels extends React.Component {
   componentDidMount() {
-    const { addChannelSuccess, removeChannelSuccess, renameChannelSuccess } = this.props;
+    const { updateChannelNew, updateChannelRemoved, updateChannelName } = this.props;
     const socket = io();
     socket.on('removeChannel', ({ data: { id } }) => {
-      removeChannelSuccess({ id });
+      updateChannelRemoved({ id });
     });
     socket.on('renameChannel', (data) => {
       const { data: { attributes: { id, name } } } = data;
-      renameChannelSuccess({ id, name });
+      updateChannelName({ id, name });
     });
     socket.on('newChannel', (data) => {
       const { data: { attributes: channel } } = data;
-      addChannelSuccess({ channel });
+      updateChannelNew({ channel });
     });
   }
 
@@ -85,6 +93,9 @@ class Channels extends React.Component {
       modalRenameChannelUIState,
       modalRemoveChannelUIState,
       modalAddChannelUIState,
+      addChannelState,
+      removeChannelState,
+      renameChannelState,
     } = this.props;
     return (
       <div className="col-3">
@@ -107,6 +118,13 @@ class Channels extends React.Component {
             <Modal.Title>Add new channel.</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            {addChannelState === 'requested' && (
+            <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
+              <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+              </Spinner>
+            </div>
+            )}
             <NewChannelForm
               onSubmit={this.handleAddChannel}
               onClick={inverseShowModalAddChannel}
@@ -123,6 +141,13 @@ class Channels extends React.Component {
             <Modal.Title>Write a new channel name.</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            {renameChannelState === 'requested' && (
+            <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
+              <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+              </Spinner>
+            </div>
+            )}
             <NewChannelNameForm
               channelName={currentChannelName}
               onSubmit={this.handleRenameChannel(currentChannelId)}
@@ -141,6 +166,13 @@ class Channels extends React.Component {
           </Modal.Header>
           <Modal.Body>
             <p>This channel will be deleted. Are you sure?</p>
+            {removeChannelState === 'requested' && (
+            <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
+              <Spinner animation="border" role="status">
+                <span className="sr-only">Loading...</span>
+              </Spinner>
+            </div>
+            )}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="danger" onClick={this.handleRemoveChannel(currentChannelId)}>Delete channel</Button>

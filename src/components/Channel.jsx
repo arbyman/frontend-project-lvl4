@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  ListGroup, Dropdown, ButtonGroup,
+  ListGroup, Dropdown, ButtonGroup, Badge,
 } from 'react-bootstrap';
 import io from 'socket.io-client';
 import * as actions from '../actions';
@@ -23,8 +23,6 @@ const actionsCreators = {
   inverseShowModalRemoveChannel: actions.inverseShowModalRemoveChannel,
   inverseShowModalRenameChannel: actions.inverseShowModalRenameChannel,
   changeChannel: actions.changeChannel,
-  removeChannel: actions.removeChannel,
-  renameChannel: actions.renameChannel,
   removeChannelSuccess: actions.removeChannelSuccess,
   renameChannelSuccess: actions.renameChannelSuccess,
 };
@@ -48,30 +46,6 @@ class Channel extends React.Component {
     changeChannel({ id });
   }
 
-
-  handleRemoveChannel = id => async () => {
-    const { removeChannel, inverseShowModalRemoveChannel, reset } = this.props;
-    await removeChannel(id);
-    inverseShowModalRemoveChannel();
-    reset();
-  }
-
-  handleRenameChannel = id => async ({ name }) => {
-    const { renameChannel, inverseShowModalRenameChannel } = this.props;
-    await renameChannel(id, name);
-    inverseShowModalRenameChannel();
-  }
-
-  handleShowModalRemoveChannel = () => {
-    const { inverseShowModalRemoveChannel } = this.props;
-    inverseShowModalRemoveChannel();
-  }
-
-  handleShowModalRenameChannel = () => {
-    const { inverseShowModalRenameChannel } = this.props;
-    inverseShowModalRenameChannel();
-  }
-
   render() {
     const {
       currentChannelId,
@@ -80,6 +54,7 @@ class Channel extends React.Component {
       name,
       id,
       removable,
+      unreadMessagesCount,
     } = this.props;
     return (
       <React.Fragment key={id}>
@@ -89,7 +64,12 @@ class Channel extends React.Component {
             active={currentChannelId === id}
             onClick={this.handleChangeChannel(id)}
           >
-            {name}
+            <h6>
+              {name}
+              {!!unreadMessagesCount && (
+                <Badge pill variant="success" style={{ marginLeft: '10px' }}>{unreadMessagesCount}</Badge>
+              )}
+            </h6>
           </ListGroup.Item>
           {currentChannelId === id && <Dropdown.Toggle split variant="secondary" id="dropdown-split-basic" />}
           <Dropdown.Menu>

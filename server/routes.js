@@ -8,8 +8,8 @@ export default (router, io) => {
   const randomChannelId = getNextId();
   const defaultState = {
     channels: [
-      { id: generalChannelId, name: 'general', removable: false },
-      { id: randomChannelId, name: 'random', removable: false },
+      { id: generalChannelId, name: 'general', removable: false, unreadMessagesCount: 0 },
+      { id: randomChannelId, name: 'random', removable: false, unreadMessagesCount: 0 },
     ],
     messages: [],
     currentChannelId: generalChannelId,
@@ -28,6 +28,7 @@ export default (router, io) => {
         name,
         removable: true,
         id: getNextId(),
+        unreadMessagesCount: 0,
       };
       state.channels.push(channel);
       ctx.status = 201;
@@ -86,6 +87,7 @@ export default (router, io) => {
         ...attributes,
         channelId: Number(ctx.params.channelId),
         id: getNextId(),
+        date: new Date(),
       };
       state.messages.push(message);
       ctx.status = 201;
