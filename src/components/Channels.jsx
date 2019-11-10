@@ -1,20 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import {
-  ListGroup, Button, Modal, Spinner,
-} from 'react-bootstrap';
+import { ListGroup, Button } from 'react-bootstrap';
 import io from 'socket.io-client';
 import * as actions from '../actions';
 import Channel from './Channel';
-import NewChannelForm from './NewChannelForm';
-import NewChannelNameForm from './NewChannelNameForm';
+import { ModalAddChannel, ModalRenameChannel, ModalRemoveChannel } from './Modals';
 
 const mapStateToProps = (state) => {
   const {
     channels: { byId, allIds, currentChannelId },
-    modalAddChannelUIState,
-    modalRenameChannelUIState,
-    modalRemoveChannelUIState,
+    modalUIState,
     addChannelState,
     removeChannelState,
     renameChannelState,
@@ -25,9 +20,7 @@ const mapStateToProps = (state) => {
     channels,
     currentChannelId,
     currentChannelName,
-    modalAddChannelUIState,
-    modalRenameChannelUIState,
-    modalRemoveChannelUIState,
+    modalUIState,
     addChannelState,
     removeChannelState,
     renameChannelState,
@@ -35,9 +28,8 @@ const mapStateToProps = (state) => {
 };
 
 const actionsCreators = {
-  inverseShowModalAddChannel: actions.inverseShowModalAddChannel,
-  inverseShowModalRenameChannel: actions.inverseShowModalRenameChannel,
-  inverseShowModalRemoveChannel: actions.inverseShowModalRemoveChannel,
+  showModalAddChannel: actions.showModalAddChannel,
+  hideModal: actions.hideModal,
   addChannel: actions.addChannel,
   updateChannelNew: actions.updateChannelNew,
   renameChannel: actions.renameChannel,
@@ -65,120 +57,82 @@ class Channels extends React.Component {
   }
 
   handleAddChannel = async ({ channel }) => {
-    const { addChannel, inverseShowModalAddChannel } = this.props;
+    const { addChannel, hideModal } = this.props;
     await addChannel({ channel });
-    inverseShowModalAddChannel();
+    hideModal();
   }
 
   handleRenameChannel = id => async ({ name }) => {
-    const { renameChannel, inverseShowModalRenameChannel } = this.props;
+    const { renameChannel, hideModal } = this.props;
     await renameChannel(id, name);
-    inverseShowModalRenameChannel();
+    hideModal();
   }
 
   handleRemoveChannel = id => async () => {
-    const { removeChannel, inverseShowModalRemoveChannel } = this.props;
+    const { removeChannel, hideModal } = this.props;
     await removeChannel(id);
-    inverseShowModalRemoveChannel();
+    hideModal();
+  }
+
+  renderModal = () => {
+    const {
+      modalUIState: { activeModal },
+      currentChannelId,
+      currentChannelName,
+      addChannelState,
+      removeChannelState,
+      renameChannelState,
+      hideModal,
+    } = this.props;
+    switch (activeModal) {
+      case 'addChannel':
+        return (
+          <ModalAddChannel
+            onHide={hideModal}
+            onSubmit={this.handleAddChannel}
+            addChannelState={addChannelState}
+          />
+        );
+      case 'removeChannel':
+        return (
+          <ModalRemoveChannel
+            onHide={hideModal}
+            currentChannelName={currentChannelName}
+            onClick={this.handleRemoveChannel(currentChannelId)}
+            removeChannelState={removeChannelState}
+          />
+        );
+      case 'renameChannel':
+        return (
+          <ModalRenameChannel
+            onSubmit={this.handleRenameChannel(currentChannelId)}
+            onHide={hideModal}
+            currentChannelName={currentChannelName}
+            renameChannelState={renameChannelState}
+          />
+        );
+      default:
+        return null;
+    }
   }
 
   render() {
     const {
       channels,
-      currentChannelId,
-      currentChannelName,
-      inverseShowModalAddChannel,
-      inverseShowModalRenameChannel,
-      inverseShowModalRemoveChannel,
-      modalRenameChannelUIState,
-      modalRemoveChannelUIState,
-      modalAddChannelUIState,
-      addChannelState,
-      removeChannelState,
-      renameChannelState,
+      showModalAddChannel,
     } = this.props;
     return (
-      <div className="col-3">
+      <div className="col-3 d-flex flex-column h-100">
         <ListGroup as="ul" variant="outline-danger">
           {channels
             .map(props => (
               <Channel {...props} key={props.id} />
             ))}
         </ListGroup>
-        <Button variant="outline-primary" block className="text-center add-channel" onClick={inverseShowModalAddChannel}>
+        <Button variant="outline-primary" block className="text-center add-channel mt-auto" onClick={showModalAddChannel}>
           + add channel
         </Button>
-        <Modal
-          show={modalAddChannelUIState === 'open'}
-          onHide={inverseShowModalAddChannel}
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Add new channel.</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {addChannelState === 'requested' && (
-            <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
-              <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-              </Spinner>
-            </div>
-            )}
-            <NewChannelForm
-              onSubmit={this.handleAddChannel}
-              onClick={inverseShowModalAddChannel}
-            />
-          </Modal.Body>
-        </Modal>
-        <Modal
-          show={modalRenameChannelUIState === 'open'}
-          onHide={inverseShowModalRenameChannel}
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Write a new channel name.</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {renameChannelState === 'requested' && (
-            <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
-              <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-              </Spinner>
-            </div>
-            )}
-            <NewChannelNameForm
-              channelName={currentChannelName}
-              onSubmit={this.handleRenameChannel(currentChannelId)}
-              onClick={inverseShowModalRenameChannel}
-            />
-          </Modal.Body>
-        </Modal>
-        <Modal
-          show={modalRemoveChannelUIState === 'open'}
-          onHide={inverseShowModalRemoveChannel}
-          aria-labelledby="contained-modal-title-vcenter"
-          centered
-        >
-          <Modal.Header closeButton>
-            {<Modal.Title>{currentChannelName}</Modal.Title>}
-          </Modal.Header>
-          <Modal.Body>
-            <p>This channel will be deleted. Are you sure?</p>
-            {removeChannelState === 'requested' && (
-            <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
-              <Spinner animation="border" role="status">
-                <span className="sr-only">Loading...</span>
-              </Spinner>
-            </div>
-            )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="danger" onClick={this.handleRemoveChannel(currentChannelId)}>Delete channel</Button>
-            <Button variant="secondary" onClick={inverseShowModalRemoveChannel}>Cancel</Button>
-          </Modal.Footer>
-        </Modal>
+        {this.renderModal()}
       </div>
     );
   }

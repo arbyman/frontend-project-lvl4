@@ -7,7 +7,7 @@ import MessagesInput from './MessagesInput';
 const Chat = () => (
   <div className="row h-100">
     <Channels />
-    <div className="col-9">
+    <div className="col-9 h-100">
       <MessagesField />
       <MessagesInput />
     </div>

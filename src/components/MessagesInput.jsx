@@ -1,5 +1,5 @@
 import React from 'react';
-import { Field, reduxForm, SubmissionError } from 'redux-form';
+import { Field, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 import UserContext from '../UserContext';
@@ -42,7 +42,6 @@ class MessagesInput extends React.Component {
       pristine,
       submitting,
       sendMessageState,
-      error,
     } = this.props;
     return (
       <div className="row h-25">
@@ -72,7 +71,6 @@ class MessagesInput extends React.Component {
               </div>
             </div>
           </form>
-          {error && new SubmissionError(error)}
         </div>
       </div>
     );

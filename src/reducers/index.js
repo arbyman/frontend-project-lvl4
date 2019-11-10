@@ -73,23 +73,20 @@ const messages = handleActions({
   },
 }, { byId: {}, allIds: [] });
 
-const modalAddChannelUIState = handleActions({
-  [actions.inverseShowModalAddChannel](state) {
-    return state === 'close' ? 'open' : 'close';
+const modalUIState = handleActions({
+  [actions.showModalAddChannel]() {
+    return { activeModal: 'addChannel' };
   },
-}, 'close');
-
-const modalRemoveChannelUIState = handleActions({
-  [actions.inverseShowModalRemoveChannel](state) {
-    return state === 'close' ? 'open' : 'close';
+  [actions.showModalRemoveChannel]() {
+    return { activeModal: 'removeChannel' };
   },
-}, 'close');
-
-const modalRenameChannelUIState = handleActions({
-  [actions.inverseShowModalRenameChannel](state) {
-    return state === 'close' ? 'open' : 'close';
+  [actions.showModalRenameChannel]() {
+    return { activeModal: 'renameChannel' };
   },
-}, 'close');
+  [actions.hideModal]() {
+    return { activeModal: 'none' };
+  },
+}, { activeModal: 'none' });
 
 const sendMessageState = handleActions({
   [actions.sendMessageRequest]() {
@@ -146,8 +143,6 @@ export default combineReducers({
   addChannelState,
   removeChannelState,
   renameChannelState,
-  modalAddChannelUIState,
-  modalRemoveChannelUIState,
-  modalRenameChannelUIState,
+  modalUIState,
   form: formReducer,
 });

@@ -43,9 +43,9 @@ class MessagesField extends React.Component {
   render() {
     const { messages } = this.props;
     return (
-      <div className="row message-field">
-        <div className="col">
-          <div ref={this.textField} className="text-field form-control">
+      <div className="row h-100">
+        <div className="col h-100">
+          <div ref={this.textField} className="form-control h-100 overflow-auto mh-100">
             {messages.map(props => <Message {...props} key={props.id} />)}
           </div>
         </div>

@@ -2,9 +2,10 @@ import { createAction } from 'redux-actions';
 import axios from 'axios';
 import routes from '../routes';
 
-export const inverseShowModalAddChannel = createAction('MODAL_ADD_CHANNEL_UI_STATE');
-export const inverseShowModalRemoveChannel = createAction('MODAL_REMOVE_CHANNEL_UI_STATE');
-export const inverseShowModalRenameChannel = createAction('MODAL_RENAME_CHANNEL_UI_STATE');
+export const showModalAddChannel = createAction('MODAL_ADD_CHANNEL_SHOW');
+export const showModalRemoveChannel = createAction('MODAL_REMOVE_CHANNEL_SHOW');
+export const showModalRenameChannel = createAction('MODAL_RENAME_CHANNEL_SHOW');
+export const hideModal = createAction('MODAL_HIDE');
 
 export const changeChannel = createAction('CHANNEL_CHANGE');
 

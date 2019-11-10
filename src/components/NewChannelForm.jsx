@@ -1,5 +1,5 @@
 import React from 'react';
-import { Field, reduxForm, SubmissionError } from 'redux-form';
+import { Field, reduxForm } from 'redux-form';
 import { Form, ButtonToolbar, Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
@@ -18,7 +18,7 @@ class NewChannelForm extends React.Component {
 
   render() {
     const {
-      handleSubmit, pristine, submitting, onClick, error,
+      handleSubmit, pristine, submitting, onClick,
     } = this.props;
     return (
       <Form onSubmit={handleSubmit}>
@@ -29,7 +29,6 @@ class NewChannelForm extends React.Component {
           <Button variant="success" type="submit" disabled={pristine || submitting}>Add channel</Button>
           <Button variant="danger" onClick={onClick}>Cancel</Button>
         </ButtonToolbar>
-        {error && new SubmissionError(error)}
       </Form>
     );
   }

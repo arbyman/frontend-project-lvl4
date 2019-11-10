@@ -20,8 +20,8 @@ const mapStateToProps = (state) => {
 };
 
 const actionsCreators = {
-  inverseShowModalRemoveChannel: actions.inverseShowModalRemoveChannel,
-  inverseShowModalRenameChannel: actions.inverseShowModalRenameChannel,
+  showModalRemoveChannel: actions.showModalRemoveChannel,
+  showModalRenameChannel: actions.showModalRenameChannel,
   changeChannel: actions.changeChannel,
   removeChannelSuccess: actions.removeChannelSuccess,
   renameChannelSuccess: actions.renameChannelSuccess,
@@ -49,8 +49,8 @@ class Channel extends React.Component {
   render() {
     const {
       currentChannelId,
-      inverseShowModalRenameChannel,
-      inverseShowModalRemoveChannel,
+      showModalRenameChannel,
+      showModalRemoveChannel,
       name,
       id,
       removable,
@@ -73,9 +73,9 @@ class Channel extends React.Component {
           </ListGroup.Item>
           {currentChannelId === id && <Dropdown.Toggle split variant="secondary" id="dropdown-split-basic" />}
           <Dropdown.Menu>
-            <Dropdown.Item onClick={inverseShowModalRenameChannel}>Rename</Dropdown.Item>
+            <Dropdown.Item onClick={showModalRenameChannel}>Rename</Dropdown.Item>
             {removable && (
-            <Dropdown.Item onClick={inverseShowModalRemoveChannel}>
+            <Dropdown.Item onClick={showModalRemoveChannel}>
               Delete
             </Dropdown.Item>
             )}
