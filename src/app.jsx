@@ -10,13 +10,12 @@ import reducers from './reducers';
 import Chat from './components/Chat';
 import UserContext from './UserContext';
 
-const getUserFromCookie = () => cookies.get('userName');
-
-const createNewUser = () => {
-  const user = faker.name.findName();
-  cookies.set('userName', user);
-  return user;
+const setUsername = () => {
+  const username = faker.name.findName();
+  cookies.set('username', username);
 };
+
+const getUsername = () => cookies.get('username');
 
 export default ({ channels, currentChannelId, messages }) => {
   const defaultState = {
@@ -41,12 +40,16 @@ export default ({ channels, currentChannelId, messages }) => {
     ),
   );
   const container = document.getElementById('chat');
-  const user = getUserFromCookie() || createNewUser();
-  console.log(user);
+
+  if (!getUsername()) {
+    setUsername();
+  }
+
+  const username = getUsername();
 
   render(
     <Provider store={store}>
-      <UserContext.Provider value={user}>
+      <UserContext.Provider value={username}>
         <Chat />
       </UserContext.Provider>
     </Provider>,
