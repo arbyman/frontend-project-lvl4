@@ -1,8 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { ListGroup, Button } from 'react-bootstrap';
-import io from 'socket.io-client';
-import * as actions from '../actions';
+import connect from '../connect';
 import Channel from './Channel';
 import { ModalAddChannel, ModalRenameChannel, ModalRemoveChannel } from './Modals';
 
@@ -27,51 +25,21 @@ const mapStateToProps = (state) => {
   };
 };
 
-const actionsCreators = {
-  showModalAddChannel: actions.showModalAddChannel,
-  hideModal: actions.hideModal,
-  addChannel: actions.addChannel,
-  updateChannelNew: actions.updateChannelNew,
-  renameChannel: actions.renameChannel,
-  updateChannelName: actions.updateChannelName,
-  removeChannel: actions.removeChannel,
-  updateChannelRemoved: actions.updateChannelRemoved,
-};
-
-@connect(mapStateToProps, actionsCreators)
+@connect(mapStateToProps)
 class Channels extends React.Component {
-  componentDidMount() {
-    const { updateChannelNew, updateChannelRemoved, updateChannelName } = this.props;
-    const socket = io();
-    socket.on('removeChannel', ({ data: { id } }) => {
-      updateChannelRemoved({ id });
-    });
-    socket.on('renameChannel', (data) => {
-      const { data: { attributes: { id, name } } } = data;
-      updateChannelName({ id, name });
-    });
-    socket.on('newChannel', (data) => {
-      const { data: { attributes: channel } } = data;
-      updateChannelNew({ channel });
-    });
-  }
-
   handleAddChannel = async ({ channel }) => {
-    const { addChannel, hideModal } = this.props;
+    const { addChannel } = this.props;
     await addChannel({ channel });
-    hideModal();
   }
 
   handleRenameChannel = id => async ({ name }) => {
-    const { renameChannel, hideModal } = this.props;
+    const { renameChannel } = this.props;
     await renameChannel(id, name);
-    hideModal();
   }
 
   handleRemoveChannel = id => async () => {
-    const { removeChannel, hideModal } = this.props;
+    const { removeChannel } = this.props;
     await removeChannel(id);
-    hideModal();
   }
 
   renderModal = () => {

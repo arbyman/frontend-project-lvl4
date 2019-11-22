@@ -83,6 +83,15 @@ const modalUIState = handleActions({
   [actions.showModalRenameChannel]() {
     return { activeModal: 'renameChannel' };
   },
+  [actions.updateChannelName]() {
+    return { activeModal: 'none' };
+  },
+  [actions.updateChannelRemoved]() {
+    return { activeModal: 'none' };
+  },
+  [actions.updateChannelNew]() {
+    return { activeModal: 'none' };
+  },
   [actions.hideModal]() {
     return { activeModal: 'none' };
   },

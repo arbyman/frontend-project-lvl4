@@ -1,10 +1,9 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import {
   ListGroup, Dropdown, ButtonGroup, Badge,
 } from 'react-bootstrap';
 import io from 'socket.io-client';
-import * as actions from '../actions';
+import connect from '../connect';
 
 const mapStateToProps = (state) => {
   const {
@@ -19,15 +18,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const actionsCreators = {
-  showModalRemoveChannel: actions.showModalRemoveChannel,
-  showModalRenameChannel: actions.showModalRenameChannel,
-  changeChannel: actions.changeChannel,
-  removeChannelSuccess: actions.removeChannelSuccess,
-  renameChannelSuccess: actions.renameChannelSuccess,
-};
-
-@connect(mapStateToProps, actionsCreators)
+@connect(mapStateToProps)
 class Channel extends React.Component {
   componentDidMount() {
     const { removeChannelSuccess, renameChannelSuccess } = this.props;
@@ -67,7 +58,7 @@ class Channel extends React.Component {
             <h6>
               {name}
               {!!unreadMessagesCount && (
-                <Badge pill variant="success" style={{ marginLeft: '10px' }}>{unreadMessagesCount}</Badge>
+                <Badge pill variant="success" className="ml-1">{unreadMessagesCount}</Badge>
               )}
             </h6>
           </ListGroup.Item>

@@ -3,12 +3,14 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore, compose, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import io from 'socket.io-client';
 import _ from 'lodash';
 import faker from 'faker';
 import cookies from 'js-cookie';
 import reducers from './reducers';
 import Chat from './components/Chat';
 import UserContext from './UserContext';
+import * as actions from './actions';
 
 const setUsername = () => {
   const username = faker.name.findName();
@@ -39,6 +41,20 @@ export default ({ channels, currentChannelId, messages }) => {
       // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
     ),
   );
+
+  const socket = io();
+  socket.on('removeChannel', ({ data: { id } }) => {
+    store.dispatch(actions.updateChannelRemoved({ id }));
+  });
+  socket.on('renameChannel', (data) => {
+    const { data: { attributes: { id, name } } } = data;
+    store.dispatch(actions.updateChannelName({ id, name }));
+  });
+  socket.on('newChannel', (data) => {
+    const { data: { attributes: channel } } = data;
+    store.dispatch(actions.updateChannelNew({ channel }));
+  });
+
   const container = document.getElementById('chat');
 
   if (!getUsername()) {

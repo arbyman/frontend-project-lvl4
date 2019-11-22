@@ -18,7 +18,7 @@ export const ModalAddChannel = (props) => {
       </Modal.Header>
       <Modal.Body>
         {addChannelState === 'requested' && (
-          <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
+          <div className="row d-flex justify-content-center mb-2">
             <Spinner animation="border" role="status">
               <span className="sr-only">Loading...</span>
             </Spinner>
@@ -52,7 +52,7 @@ export const ModalRenameChannel = (props) => {
       </Modal.Header>
       <Modal.Body>
         {renameChannelState === 'requested' && (
-        <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
+        <div className="row d-flex justify-content-center mb-2">
           <Spinner animation="border" role="status">
             <span className="sr-only">Loading...</span>
           </Spinner>
@@ -88,7 +88,7 @@ export const ModalRemoveChannel = (props) => {
       <Modal.Body>
         <p>This channel will be deleted. Are you sure?</p>
         {removeChannelState === 'requested' && (
-        <div className="row d-flex justify-content-center" style={{ marginBottom: '20px' }}>
+        <div className="row d-flex justify-content-center mt-1">
           <Spinner animation="border" role="status">
             <span className="sr-only">Loading...</span>
           </Spinner>

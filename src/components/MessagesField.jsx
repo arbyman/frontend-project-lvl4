@@ -1,7 +1,6 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import io from 'socket.io-client';
-import * as actions from '../actions';
+import connect from '../connect';
 import Message from './Message';
 
 const mapStateToProps = (state) => {
@@ -12,11 +11,7 @@ const mapStateToProps = (state) => {
   return { messages, currentChannelId };
 };
 
-const actionCreators = {
-  updateMessages: actions.updateMessages,
-};
-
-@connect(mapStateToProps, actionCreators)
+@connect(mapStateToProps)
 class MessagesField extends React.Component {
   constructor(props) {
     super(props);

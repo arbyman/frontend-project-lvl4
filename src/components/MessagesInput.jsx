@@ -1,7 +1,6 @@
 import React from 'react';
 import { Field, reduxForm } from 'redux-form';
-import { connect } from 'react-redux';
-import * as actions from '../actions';
+import connect from '../connect';
 import UserContext from '../UserContext';
 
 const mapStateToProps = (state) => {
@@ -9,11 +8,7 @@ const mapStateToProps = (state) => {
   return { currentChannelId, sendMessageState };
 };
 
-const actionCreators = {
-  sendMessage: actions.sendMessage,
-};
-
-@connect(mapStateToProps, actionCreators)
+@connect(mapStateToProps)
 class MessagesInput extends React.Component {
   static contextType = UserContext;
 

@@ -1,6 +1,6 @@
 {
   "name": "mini_chat",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "hexlet study project",
   "main": "dist/index.js",
   "bin": {
